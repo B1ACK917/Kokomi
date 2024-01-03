@@ -1,0 +1,10 @@
+[workspace]
+resolver = "1"
+members = [
+    "crates/kokomi",
+    "crates/kokomi-core",
+    "crates/akira"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"

@@ -1,0 +1,11 @@
+[package]
+name = "kokomi"
+version.workspace = true
+edition.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+akira = { path = "../../crates/akira", features = ["cuda"] }
+kokomi-core = { path = "../../crates/kokomi-core" }
+tokio = { version = "1.35.1", features = ["sync", "rt", "rt-multi-thread", "macros"] }
