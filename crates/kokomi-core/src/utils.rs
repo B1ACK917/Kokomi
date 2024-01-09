@@ -2,6 +2,10 @@ use std::env::var;
 use crate::debug_fn_inline;
 use colored::Colorize;
 
+use rand::{Rng, thread_rng};
+use rand::distributions::Alphanumeric;
+
+
 pub trait ParseVar {
     type Variable;
     fn parse_var(key: &str) -> Self::Variable;
@@ -85,4 +89,13 @@ impl ParseVar for String {
             Err(_) => { value }
         }
     }
+}
+
+pub fn gen_rand_str(len: usize) -> String {
+    debug_fn_inline!(len);
+    return thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(len)
+        .map(char::from)
+        .collect();
 }

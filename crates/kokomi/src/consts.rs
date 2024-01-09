@@ -1,0 +1,1 @@
+pub const KKM_DEFAULT_UUID_LEN: usize = 16;

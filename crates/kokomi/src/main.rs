@@ -6,11 +6,13 @@ use colored::Colorize;
 use axum::Router;
 use axum::routing::{get, post};
 use crate::router::completion::v1_completion;
-use crate::router::model::v1_model;
+use crate::router::event::v1_event;
+use crate::router::health::v1_health;
 use crate::state::KKMState;
 
 mod router;
 mod state;
+mod consts;
 
 #[tokio::main]
 async fn main() {
@@ -27,8 +29,9 @@ async fn main() {
     let shared_config = Box::new(Arc::new(KKMState::from(config, llama)));
 
     let app = Router::new()
-        .route("/model", get(v1_model))
-        .route("/completion", post(v1_completion))
+        .route("/v1/health", get(v1_health))
+        .route("/v1/events", post(v1_event))
+        .route("/v1/completions", post(v1_completion))
         .with_state(shared_config);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:11451").await.unwrap();
     axum::serve(listener, app).await.unwrap();
