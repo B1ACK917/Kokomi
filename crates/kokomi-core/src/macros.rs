@@ -1,17 +1,22 @@
-#[macro_export]
-macro_rules! debug_info {
-    () => {
-        eprint!("[{}][{}]", "DEBUG".bright_green(), format!("{}:{}", file!(), line!()).cyan());
-    };
-}
+use std::env;
+use once_cell::sync::Lazy;
 
+pub static DEBUG: Lazy<bool> = Lazy::new(|| {
+    match env::var("KKM_DEBUG") {
+        Ok(_) => true,
+        Err(_) => false
+    }
+});
+
+
+// For external package macro
 #[macro_export]
 macro_rules! debugln {
     ($($arg:tt)*) => {{
-        if *DEBUG{
-            debug_info!();
+        if *kokomi_core::macros::DEBUG {
+            eprint!("[{}][{}]", "DEBUG".green(), format!("{}:{}", file!(), line!()).cyan());
             eprint!(" ");
-            eprintln!("{}",format!($($arg)*).bright_green());
+            eprintln!($($arg)*);
         }
     }};
 }
@@ -24,12 +29,12 @@ macro_rules! debug_fn {
             std::any::type_name::<T>()
         }
         let name = type_name_of(f);
-        if *DEBUG {
-            debug_info!();
-            eprint!("{}", format!(" Calling {}()",name.strip_suffix("::f").unwrap()).bright_purple());
+        if *kokomi_core::macros::DEBUG {
+            eprint!("[{}][{}]", "DEBUG".green(), format!("{}:{}", file!(), line!()).cyan());
+            eprint!(" Calling {}(),", name.strip_suffix("::f").unwrap());
             $(
                 {
-                    eprint!("{}",format!(" {:?} = {:?}", stringify!($expression), &$expression).bright_yellow());
+                    eprint!(" {:?} = {:?}", stringify!($expression), &$expression);
                 }
             )*
             eprintln!();
@@ -40,15 +45,37 @@ macro_rules! debug_fn {
 #[macro_export]
 macro_rules! debug_var {
     ($($expression:expr), *) => (
-        if *DEBUG {
+        if *kokomi_core::macros::DEBUG {
             $(
                 {
-                    debug_info!();
+                    eprint!("[{}][{}]", "DEBUG".green(), format!("{}:{}", file!(), line!()).cyan());
                     eprint!(" ");
-                    eprint!("{}",format!(" {:#?} = {:#?}", stringify!($expression), &$expression).bright_yellow());
+                    eprint!("{:?} = {:#?}",stringify!($expression),&$expression);
                     eprintln!();
                 }
             )*
         }
     )
+}
+
+// For local use
+#[macro_export]
+macro_rules! debug_fn_inline {
+    ($($expression:expr), *) => {
+        fn f() {}
+        fn type_name_of<T>(_: T) -> &'static str {
+            std::any::type_name::<T>()
+        }
+        let name = type_name_of(f);
+        if *crate::macros::DEBUG {
+            eprint!("[{}][{}]", "DEBUG".green(), format!("{}:{}", file!(), line!()).cyan());
+            eprint!(" Calling {}(),", name.strip_suffix("::f").unwrap());
+            $(
+                {
+                    eprint!(" {:?} = {:?}", stringify!($expression), &$expression);
+                }
+            )*
+            eprintln!();
+        }
+    };
 }
